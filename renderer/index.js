@@ -2,11 +2,7 @@
 const { ipcRenderer } = require("electron");
 
 document.addEventListener("DOMContentLoaded", () => {
-  const container = document.createElement("div");
-  container.style.position = "relative";
-  container.style.width = "100%";
-  container.style.height = "100%";
-
+  const canvasContainer = document.getElementById("canvasContainer");
   const canvas = document.getElementById("drawCanvas");
   const context = canvas.getContext("2d");
   let drawing = false;
@@ -14,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let drawMode = "freehand"; // デフォルトの描画モード
   let startX, startY;
   let overlayCanvas, overlayContext;
+  let initialImageData = null; // 最初に読み込んだ画像データ
 
   const initOverlay = () => {
     overlayCanvas = document.createElement("canvas");
@@ -24,12 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
     overlayCanvas.style.left = "0";
     overlayCanvas.style.pointerEvents = "none";
     overlayCanvas.style.backgroundColor = "transparent"; // 透明に設定
-    container.appendChild(overlayCanvas);
+    canvasContainer.appendChild(overlayCanvas);
     overlayContext = overlayCanvas.getContext("2d");
   };
 
-  canvas.parentNode.insertBefore(container, canvas);
-  container.appendChild(canvas);
   initOverlay();
 
   ipcRenderer.on("load-image", (event, imageData) => {
@@ -40,15 +35,30 @@ document.addEventListener("DOMContentLoaded", () => {
       overlayCanvas.width = img.width;
       overlayCanvas.height = img.height;
       context.drawImage(img, 0, 0, canvas.width, canvas.height);
+      initialImageData = context.getImageData(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      ); // 最初の画像データを保持
       ipcRenderer.send("resize-window", img.width, img.height);
     };
     img.src = imageData;
   });
 
+  const getMousePos = (event) => {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  };
+
   canvas.addEventListener("mousedown", (event) => {
     drawing = true;
-    startX = event.clientX - canvas.offsetLeft;
-    startY = event.clientY - canvas.offsetTop;
+    const pos = getMousePos(event);
+    startX = pos.x;
+    startY = pos.y;
 
     if (drawMode === "freehand") {
       context.beginPath();
@@ -59,8 +69,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   canvas.addEventListener("mousemove", (event) => {
     if (drawing) {
-      const currentX = event.clientX - canvas.offsetLeft;
-      const currentY = event.clientY - canvas.offsetTop;
+      const pos = getMousePos(event);
+      const currentX = pos.x;
+      const currentY = pos.y;
 
       if (drawMode === "freehand") {
         context.lineTo(currentX, currentY);
@@ -85,8 +96,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   canvas.addEventListener("mouseup", (event) => {
     drawing = false;
-    const endX = event.clientX - canvas.offsetLeft;
-    const endY = event.clientY - canvas.offsetTop;
+    const pos = getMousePos(event);
+    const endX = pos.x;
+    const endY = pos.y;
 
     if (drawMode === "freehand") {
       context.closePath();
@@ -123,6 +135,13 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       drawMode = "freehand";
       toggleModeButton.textContent = "Switch to Rectangle Mode";
+    }
+  });
+
+  const resetButton = document.getElementById("resetButton");
+  resetButton.addEventListener("click", () => {
+    if (initialImageData) {
+      context.putImageData(initialImageData, 0, 0); // 最初の画像データを描画
     }
   });
 });
