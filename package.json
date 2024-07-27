@@ -1,16 +1,27 @@
 {
-  "name": "electron-image-editor",
+  "name": "clipboard-image-editor",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "electron .",
+    "build:mac": "electron-builder --mac"
+  },
+  "build": {
+    "appId": "com.shu1007.clipboard-image-editor",
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.utilities"
+    }
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^31.3.0"
+    "electron": "^31.3.0",
+    "electron-builder": "^24.13.3"
   }
 }
