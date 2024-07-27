@@ -5,6 +5,7 @@ const {
   clipboard,
   ipcMain,
   nativeImage,
+  dialog,
 } = require("electron");
 const path = require("path");
 
@@ -28,6 +29,19 @@ function createWindow() {
     if (!image.isEmpty()) {
       const imageData = image.toDataURL();
       mainWindow.webContents.send("load-image", imageData);
+    } else {
+      // 画像がない場合にダイアログを表示
+      dialog
+        .showMessageBox(mainWindow, {
+          type: "info",
+          buttons: ["OK"],
+          title: "No Image in Clipboard",
+          message:
+            "No image found in clipboard. The application will now close.",
+        })
+        .then(() => {
+          app.quit();
+        });
     }
   });
 
