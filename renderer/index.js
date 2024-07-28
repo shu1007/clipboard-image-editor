@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const context = canvas.getContext("2d");
   let drawing = false;
   let currentColor = "#000000"; // デフォルトの線の色
+  let currentLineWidth = 5; // デフォルトの線の太さ
   let drawMode = "freehand"; // デフォルトの描画モード
   let startX, startY;
   let overlayCanvas, overlayContext;
@@ -64,6 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
       context.beginPath();
       context.moveTo(startX, startY);
       context.strokeStyle = currentColor;
+      context.lineWidth = currentLineWidth;
     }
   });
 
@@ -84,6 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
           overlayCanvas.height
         );
         overlayContext.strokeStyle = currentColor;
+        overlayContext.lineWidth = currentLineWidth;
         overlayContext.strokeRect(
           startX,
           startY,
@@ -105,6 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (drawMode === "rectangle") {
       overlayContext.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
       context.strokeStyle = currentColor;
+      context.lineWidth = currentLineWidth;
       context.strokeRect(startX, startY, endX - startX, endY - startY);
     }
   });
@@ -125,6 +129,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const colorPicker = document.getElementById("colorPicker");
   colorPicker.addEventListener("input", (event) => {
     currentColor = event.target.value;
+  });
+
+  const lineWidthSelector = document.getElementById("lineWidth");
+  lineWidthSelector.addEventListener("change", (event) => {
+    currentLineWidth = parseInt(event.target.value, 10);
   });
 
   const toggleModeButton = document.getElementById("toggleModeButton");

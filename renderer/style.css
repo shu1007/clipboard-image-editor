@@ -20,6 +20,12 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+#canvasContainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
 canvas {
     display: block;
     background-color: #ffffff;
@@ -39,4 +45,9 @@ button {
     cursor: pointer;
     padding: 0;
     margin-left: 10px;
+}
+
+#lineWidth {
+    margin-left: 10px;
+    font-size: 16px;
 }
