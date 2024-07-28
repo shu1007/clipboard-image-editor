@@ -124,6 +124,10 @@ document.addEventListener("DOMContentLoaded", () => {
   saveButton.addEventListener("click", () => {
     const imageData = canvas.toDataURL();
     ipcRenderer.send("save-image", imageData);
+    saveButton.innerHTML = '<i class="fas fa-check"></i>';
+    setTimeout(() => {
+      saveButton.innerHTML = '<i class="fas fa-clipboard"></i>';
+    }, 1000);
   });
 
   const colorPicker = document.getElementById("colorPicker");
@@ -131,19 +135,27 @@ document.addEventListener("DOMContentLoaded", () => {
     currentColor = event.target.value;
   });
 
-  const lineWidthSelector = document.getElementById("lineWidth");
-  lineWidthSelector.addEventListener("change", (event) => {
-    currentLineWidth = parseInt(event.target.value, 10);
+  const lineWidthSelector = document.getElementById("lineWidthOptions");
+  lineWidthSelector.addEventListener("click", (event) => {
+    if (
+      event.target &&
+      event.target.parentElement &&
+      event.target.parentElement.dataset.width
+    ) {
+      currentLineWidth = parseInt(event.target.parentElement.dataset.width, 10);
+      document.querySelector("#lineWidthSelector .dropbtn").innerHTML =
+        event.target.outerHTML;
+    }
   });
 
   const toggleModeButton = document.getElementById("toggleModeButton");
   toggleModeButton.addEventListener("click", () => {
     if (drawMode === "freehand") {
       drawMode = "rectangle";
-      toggleModeButton.textContent = "Switch to Freehand Mode";
+      toggleModeButton.innerHTML = '<i class="far fa-square"></i>';
     } else {
       drawMode = "freehand";
-      toggleModeButton.textContent = "Switch to Rectangle Mode";
+      toggleModeButton.innerHTML = '<i class="fas fa-pen"></i>';
     }
   });
 
