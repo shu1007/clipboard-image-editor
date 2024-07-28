@@ -42,7 +42,11 @@ document.addEventListener("DOMContentLoaded", () => {
         canvas.width,
         canvas.height
       ); // 最初の画像データを保持
-      ipcRenderer.send("resize-window", img.width, img.height);
+      ipcRenderer.send(
+        "resize-window",
+        Math.max(800, img.width),
+        Math.max(100, img.height)
+      );
     };
     img.src = imageData;
   });
