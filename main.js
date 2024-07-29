@@ -8,6 +8,7 @@ const {
   dialog,
 } = require("electron");
 const path = require("path");
+const sharp = require("sharp"); // sharpライブラリをインポート
 
 let mainWindow;
 
@@ -45,10 +46,24 @@ function createWindow() {
     }
   });
 
-  // レンダラープロセスからの画像データをクリップボードに保存
-  ipcMain.on("save-image", (event, imageData) => {
-    const image = nativeImage.createFromDataURL(imageData);
-    clipboard.writeImage(image);
+  // レンダラープロセスからの画像データをPNG形式で圧縮してクリップボードに保存
+  ipcMain.on("save-image", async (event, imageData) => {
+    try {
+      // Base64データURLからバッファを生成
+      const base64Data = imageData.replace(/^data:image\/\w+;base64,/, "");
+      const buffer = Buffer.from(base64Data, "base64");
+
+      // sharpを使ってPNG形式で圧縮
+      const compressedBuffer = await sharp(buffer)
+        .png({ compressionLevel: 9, palette: true, quality: 50, colors: 128 }) // 圧縮オプションを指定
+        .toBuffer();
+
+      // PNGバッファをクリップボードに保存
+      const compressedImage = nativeImage.createFromBuffer(compressedBuffer);
+      clipboard.writeImage(compressedImage);
+    } catch (error) {
+      console.error("Failed to save image as compressed PNG:", error);
+    }
   });
 
   // 画像サイズにウィンドウをリサイズ

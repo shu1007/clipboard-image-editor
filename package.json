@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
-    "build:mac": "electron-builder --mac"
+    "build:mac": "electron-builder --mac --arm64"
   },
   "build": {
     "appId": "com.shu1007.clipboard-image-editor",
@@ -15,7 +15,12 @@
         "dmg"
       ],
       "category": "public.app-category.utilities"
-    }
+    },
+    "asar": true,
+    "asarUnpack": [
+      "**/node_modules/sharp/**/*",
+      "**/node_modules/@img/**/*"
+    ]
   },
   "keywords": [],
   "author": "",
@@ -23,5 +28,8 @@
   "devDependencies": {
     "electron": "^31.3.0",
     "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "sharp": "^0.33.4"
   }
 }
